@@ -42,11 +42,7 @@ $.cookie = '';
 $.inviteList = [];
 $.secretpInfo = {};
 $.ShInviteList = [];
-$.innerShInviteList = [
-  'H8mphLv7FUnnL8GbFdd_mlxZ',
-  'H8mphLf1H134L93NeId7n63BBCw',
-  'H8mphLDxElL2PIKbF5h_mmk'
-];
+$.innerShInviteList = [];
 if ($.isNode()) {
   Object.keys(jdCookieNode).forEach((item) => {
     cookiesArr.push(jdCookieNode[item])
