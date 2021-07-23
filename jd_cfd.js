@@ -1,7 +1,7 @@
 /*
 京喜财富岛
 cron 5 * * * * jd_cfd.js
-更新时间：2021-7-19
+更新时间：2021-7-13
 活动入口：京喜APP-我的-京喜财富岛
 
 已支持IOS双京东账号,Node.js支持N个京东账号
@@ -41,7 +41,7 @@ $.shareCodes = [
 'B12CC135BC03142AB20C67C3F4FD510D24B2941EDFF7103EBA5D2C5687A84B53',
 '2909ADB5DE69C81226DFE1AF4816688BD28B25620A94E36DF1AD8BE62E79AD91'
 ];
-let cookiesArr = [], cookie = '', token;
+let cookiesArr = [], cookie = '', token = '';
 
 const randomCount = $.isNode() ? 3 : 3;
 if ($.isNode()) {
@@ -87,10 +87,9 @@ $.appId = 10028;
         }
         continue
       }
-      token = await getJxToken()
-      // console.log(`token：${JSON.stringify(token)}`)
       $.allTask = []
       $.info = {}
+      token = await getJxToken()
       await shareCodesFormat()
       await cfd();
       await $.wait(2000);
@@ -99,8 +98,6 @@ $.appId = 10028;
   for (let j = 0; j < cookiesArr.length; j++) {
     cookie = cookiesArr[j];
     $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
-    // token = await getJxToken();
-    // if (!token) continue
     $.canHelp = true
     if ($.shareCodes && $.shareCodes.length) {
       console.log(`\n自己账号内部循环互助\n`);
@@ -162,7 +159,7 @@ async function cfd() {
       let vo = $.info.buildInfo.buildList[key]
       let body = `strBuildIndex=${vo.strBuildIndex}`
       await getBuildInfo(body, vo)
-      await $.wait(1000)
+      await $.wait(2000)
     }
 
     //合成珍珠
@@ -218,7 +215,7 @@ async function cfd() {
         let vo = $.info.StoryInfo.StoryList[key]
         if (vo.Mermaid) {
           if (vo.Mermaid.dwIsToday === 1) {
-            console.log(`可怜的美人鱼困在沙滩上了，快去解救他吧~`)
+            console.log(`可怜的美人鱼困在沙滩上了，快去解救她吧~`)
             await mermaidOper(vo.strStoryId, '1', vo.ddwTriggerDay)
           } else if (vo.Mermaid.dwIsToday === 0) {
             await mermaidOper(vo.strStoryId, '4', vo.ddwTriggerDay)
@@ -295,7 +292,7 @@ async function composeGameState(type = true) {
                   console.log(`合成珍珠：模拟操作${num}次`)
                   for (let v = 0; v < num; v++) {
                     console.log(`模拟操作进度：${v + 1}/${num}`)
-                    await $.wait(5000)
+                    await $.wait(2000)
                     await realTmReport(data.strMyShareId)
                   }
                   let res = await composeGameAddProcess(data.strDT)
@@ -523,7 +520,7 @@ async function querystorageroom(dwSceneId) {
                 strTypeCnt += `${bags[j]}|`
               }
             }
-            await $.wait(1000)
+            await $.wait(2000)
             await sellgoods(`strTypeCnt=${strTypeCnt}&dwSceneId=${dwSceneId}`)
           } else {
             console.log(`背包是空的，快去捡贝壳吧\n`)
@@ -580,7 +577,7 @@ async function getTakeAggrPage(type) {
                   if (vo.dwStatus !== 1) {
                     const body = `ddwCoin=${vo.ddwCoin}&ddwMoney=${vo.ddwMoney}&dwPrizeType=${vo.dwPrizeType}&strPrizePool=${vo.strPrizePool}&dwPrizeLv=${vo.dwBingoLevel}`
                     await rewardSign(body)
-                    await $.wait(1000)
+                    await $.wait(2000)
                   } else {
                     console.log(`今日已签到\n`)
                     break
@@ -911,10 +908,10 @@ async function employTourGuideInfo() {
               }
               const body = `strBuildIndex=${vo.strBuildIndex}&dwIsFree=${dwIsFree}&ddwConsumeCoin=${vo.ddwCostCoin}`
               await employTourGuide(body, buildNmae)
-              await $.wait(1000)
             } else if (vo.strBuildIndex !== 'food') {
               console.log(`【${buildNmae}】无可雇佣导游`)
             }
+            await $.wait(2000)
           }
         }
       } catch (e) {
@@ -977,7 +974,6 @@ async function getBuildInfo(body, buildList, type = true) {
               default:
                 break
             }
-            // console.log(data)
             if (data.dwBuildLvl === 0) {
               console.log(`创建建筑`)
               console.log(`【${buildNmae}】当前建筑还未创建，开始创建`)
@@ -994,16 +990,15 @@ async function getBuildInfo(body, buildList, type = true) {
             await getUserInfo(false)
             console.log(`升级建筑`)
             console.log(`【${buildNmae}】当前等级：${buildList.dwLvl} 升级获得财富：${data.ddwLvlRich}`)
-            console.log(`【${buildNmae}】升级需要${data.ddwNextLvlCostCoin}金币，当前拥有${$.info.ddwCoinBalance}`)
-            if(data.dwCanLvlUp > 0 && $.info.ddwCoinBalance >= data.ddwNextLvlCostCoin) {
+            console.log(`【${buildNmae}】升级需要${data.ddwNextLvlCostCoin}金币，当前拥有${$.info.ddwCoinBalance}，保留三倍升级所需金币${data.ddwNextLvlCostCoin * 3}`)
+            if(data.dwCanLvlUp > 0 && $.info.ddwCoinBalance >= data.ddwNextLvlCostCoin * 3) {
               console.log(`【${buildNmae}】满足升级条件，开始升级`)
               const body = `ddwCostCoin=${data.ddwNextLvlCostCoin}&strBuildIndex=${data.strBuildIndex}`
               let buildLvlUpRes = await buildLvlUp(body)
               if (buildLvlUpRes.iRet === 0) {
                 console.log(`【${buildNmae}】升级成功\n`)
               } else {
-                console.log(`${buildLvlUpRes}\n`)
-                await $.wait(2000)
+                console.log(`【${buildNmae}】升级失败：${buildLvlUpRes.sErrMsg}\n`)
               }
             } else {
               console.log(`【${buildNmae}】不满足升级条件，跳过升级\n`)
@@ -1144,7 +1139,7 @@ function getAuthorShareCode(url) {
 // 获取用户信息
 function getUserInfo(showInvite = true) {
   return new Promise(async (resolve) => {
-    $.get(taskUrl(`user/QueryUserInfo`), (err, resp, data) => {
+    $.get(taskUrl(`user/QueryUserInfo`, `ddwTaskId=&strShareId=&strMarkList=${escape('guider_step,collect_coin_auth,guider_medal,guider_over_flag,build_food_full,build_sea_full,build_shop_full,build_fun_full,medal_guider_show,guide_guider_show,guide_receive_vistor,daily_task,guider_daily_task')}&strPgUUNum=${token['farm_jstoken']}&strPgtimestamp=${token['timestamp']}&strPhoneID=${token['phoneid']}`), (err, resp, data) => {
       try {
         if (err) {
           console.log(`${JSON.stringify(err)}`)
@@ -1159,11 +1154,12 @@ function getUserInfo(showInvite = true) {
             strMyShareId,
             dwLandLvl,
             Fund = {},
-            StoryInfo = {}
+            StoryInfo = {},
+            Business = {}
           } = data;
           if (showInvite) {
             console.log(`\n获取用户信息：${sErrMsg}\n${$.showLog ? data : ""}`);
-            console.log(`\n当前等级:${dwLandLvl},金币:${ddwCoinBalance},财富值:${ddwRichBalance}\n`)
+            console.log(`\n当前等级:${dwLandLvl},金币:${ddwCoinBalance},财富值:${ddwRichBalance},连续营业天数:${Business.dwBussDayNum},离线收益:${Business.ddwCoin}\n`)
           }
           if (showInvite && strMyShareId) {
             console.log(`财富岛好友互助码每次运行都变化,旧的可继续使用`);
@@ -1280,7 +1276,7 @@ function browserTask(taskType) {
           } else {
             //领奖励
             await awardTask(1, taskinfo);
-            await $.wait(1000);
+            await $.wait(2000);
           }
         }
         break;
